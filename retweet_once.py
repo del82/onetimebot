@@ -64,7 +64,7 @@ class TargetedRetweetListener(StreamListener):
                 r = requests.get(url)
                 logging.debug("url resolved to %s" % r.url)
                 _,loc,path,_,_,_ = urlparse(r.url)
-                canonical_url = '/'.join([loc, path]) #
+                canonical_url = '/'.join([loc, path])
                 logging.debug("canonical url is %s" % canonical_url)
                 counts = self.counts.get(canonical_url, 0)
                 if counts != 0:
@@ -75,7 +75,7 @@ class TargetedRetweetListener(StreamListener):
                     logging.info("got a new url, retweeting")
                     self.api.retweet(status.id)
             else:
-                logging.info("got tweet from %s, not retweeting" % status.user_name)
+                logging.info("got tweet from %s, not retweeting" % status.user.name)
         except:
             logging.critical(traceback.format_exc())
         finally:
