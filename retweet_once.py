@@ -6,7 +6,8 @@
 # verifier= "" # the number we got at that url
 # t = auth.get_access_token(verifier)
 
-import logging, os.path, json, traceback
+import logging, logging.config
+import os.path, json, traceback
 import tweepy
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
