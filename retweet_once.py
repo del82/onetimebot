@@ -6,13 +6,13 @@
 # verifier= "" # the number we got at that url
 # t = auth.get_access_token(verifier)
 
-import logging, os.path, json
+import logging, os.path, json, traceback
 import tweepy
 from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
 import requests
-
+from urlparse import urlparse
 
 try:
     import cPickle as pickle
@@ -63,18 +63,21 @@ class TargetedRetweetListener(StreamListener):
                 logging.debug("got a url: %s" % url)
                 r = requests.get(url)
                 logging.debug("url resolved to %s" % r.url)
-                counts = self.counts.get(r.url, 0)
+                _,loc,path,_,_,_ = urlparse(r.url)
+                canonical_url = '/'.join([loc, path]) #
+                logging.debug("canonical url is %s" % canonical_url)
+                counts = self.counts.get(canonical_url, 0)
                 if counts != 0:
                     logging.info("duplicate url, not retweeting")
-                    self.counts[r.url] = counts + 1
+                    self.counts[canonical_url] = counts + 1
                 else:
-                    self.counts[r.url] = 1
+                    self.counts[canonical_url] = 1
                     logging.info("got a new url, retweeting")
                     self.api.retweet(status.id)
             else:
                 logging.info("got tweet from %s, not retweeting" % status.user_name)
         except:
-            logging.critical(sys.exc_info()[0])
+            logging.critical(traceback.format_exc())
         finally:
             return True
 
@@ -96,7 +99,9 @@ if __name__ == '__main__':
     try:
         stream.userstream()
     except:
-        logging.critical(sys.exc_info()[0])
+        logging.critical(traceback.format_exc())
+    finally:
+        logging.info("quitting.")
 
 # api.update_status('message')
 # or api.retweet(tweet_id)
