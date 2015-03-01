@@ -23,8 +23,53 @@ COUNT_DICT_FILE = "counts.pkl"
 LOG_FILENAME = "example.log"
 NYTIMES_ID = 807095
 
-logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
+
+class RootLoggerFilter(logging.Filter):
+    def filter(self, record):
+        print record
+        return True
+
+log_config = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'filters': {
+        'root': {
+            '()': RootLoggerFilter,
+        }
+    },
+    'handlers': {
+        'null': {
+            'level':'DEBUG',
+            'class':'logging.StreamHandler',
+            'formatter' : 'verbose',
+            #'filters' : ['root']
+        },
+        'console':{
+            'level': 'DEBUG',
+            'class':'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+    },
+    'loggers': {
+        'root': {
+            'handlers':['null'],
+            'propagate': True,
+            'level':'DEBUG',
+        },
+    }
+}
+
+logging.config.dictConfig(log_config)
 logging.debug('initializing')
+
 
 class SPKVS(dict):
     """ Extremely simple, inefficient, persistant key-value store.
